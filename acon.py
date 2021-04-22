@@ -10,15 +10,12 @@ class AconC(nn.Module):
 
     def __init__(self, width):
         super().__init__()
-
         self.p1 = nn.Parameter(torch.randn(1, width, 1, 1))
         self.p2 = nn.Parameter(torch.randn(1, width, 1, 1))
         self.beta = nn.Parameter(torch.ones(1, width, 1, 1))
 
-        self.sigmoid = nn.Sigmoid()
-
     def forward(self, x):
-        return (self.p1 * x - self.p2 * x) * self.sigmoid(self.beta * (self.p1 * x - self.p2 * x)) + self.p2 * x
+        return (self.p1 * x - self.p2 * x) * torch.sigmoid(self.beta * (self.p1 * x - self.p2 * x)) + self.p2 * x
 
 
 class MetaAconC(nn.Module):
@@ -37,9 +34,7 @@ class MetaAconC(nn.Module):
         self.p1 = nn.Parameter(torch.randn(1, width, 1, 1))
         self.p2 = nn.Parameter(torch.randn(1, width, 1, 1))
 
-        self.sigmoid = nn.Sigmoid()
-
     def forward(self, x):
-        beta = self.sigmoid(
+        beta = torch.sigmoid(
             self.bn2(self.fc2(self.bn1(self.fc1(x.mean(dim=2, keepdims=True).mean(dim=3, keepdims=True))))))
-        return (self.p1 * x - self.p2 * x) * self.sigmoid(beta * (self.p1 * x - self.p2 * x)) + self.p2 * x
+        return (self.p1 * x - self.p2 * x) * torch.sigmoid(beta * (self.p1 * x - self.p2 * x)) + self.p2 * x
